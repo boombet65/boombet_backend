@@ -42,7 +42,7 @@ app.use(
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:5174',
-    'http://13.140.157.161',
+    'http://169.58.22.120',
     'https://boombet365.com',
     'https://www.boombet365.com',
 ];
