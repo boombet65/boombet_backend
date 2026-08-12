@@ -5,7 +5,7 @@ cd ~/.ssh
 
 
 # Generate key (tumia jina linalokumbusha project)
-ssh-keygen -t ed25519 -C "github-actions-betnova-frontend" -f ~/.ssh/betnova_frontend_key
+ssh-keygen -t ed25519 -C "github-actions-boombet-frontend" -f ~/.ssh/boombet_frontend_key
 
 
 Hatua ya 4: Angalia keys zimeundwa
@@ -15,7 +15,7 @@ ls -la ~/.ssh/
 Authorize private key kuingia server (muhimu!)
 
 # Hakikisha public key iko kwenye authorized_keys
-cat ~/.ssh/betnova_frontend_key.pub >> ~/.ssh/authorized_keys
+cat ~/.ssh/boombet_frontend_key.pub >> ~/.ssh/authorized_keys
 
 # Angalia imeongezwa
 cat ~/.ssh/authorized_keys
@@ -23,6 +23,6 @@ cat ~/.ssh/authorized_keys
 2. PRIVATE KEY - Weka kwenye GitHub Secrets
 
 # Copy private key yako
-cat ~/.ssh/betnova_frontend_key
+cat ~/.ssh/boombet_frontend_key
 
 # Copy yote - inaanza na "-----BEGIN OPENSSH PRIVATE KEY-----"

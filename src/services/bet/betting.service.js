@@ -187,7 +187,7 @@ const placeBet = async (userId, { stake, selections, placed_via = 'DIRECT', book
       possible_win: potentialWin.toFixed(2),
       tax: taxAmount.toFixed(2),
       payout: netPayout.toFixed(2),
-      status: 'PENDING',
+      status: 'OPEN',
       placed_via,
       booking_code_used
     };

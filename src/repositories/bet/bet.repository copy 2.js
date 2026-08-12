@@ -142,14 +142,14 @@ const updateBetSelectionStatus = async (selectionId, status, transaction = null)
   return updatedRows > 0;
 };
 
-// ============ FIND OPEN BETS BY MATCH ID (Bado hazijasettled) ============
-const findOpenBetsByMatchId = async (matchId) => {
-  console.log(`[REPO] Finding open bets for match ${matchId}`);
+// ============ FIND PENDING BETS BY MATCH ID ============
+const findPendingBetsByMatchId = async (matchId) => {
+  console.log(`[REPO] Finding pending bets for match ${matchId}`);
   
   try {
     const bets = await Bet.findAll({
       where: { 
-        status: 'OPEN'  // ← Badilisha kutoka 'PENDING' kuwa 'OPEN'
+        status: 'PENDING'
       },
       include: [{
         model: BetSelection,
@@ -164,8 +164,9 @@ const findOpenBetsByMatchId = async (matchId) => {
       }]
     });
     
-    console.log(`[REPO] Found ${bets.length} open bets for match ${matchId}`);
+    console.log(`[REPO] Found ${bets.length} pending bets for match ${matchId}`);
     
+    // Debug: Log bet details
     bets.forEach(bet => {
       console.log(`  - Bet ${bet.ticket_code}: ${bet.selections?.length || 0} selections`);
       bet.selections?.forEach(sel => {
@@ -175,19 +176,19 @@ const findOpenBetsByMatchId = async (matchId) => {
     
     return bets;
   } catch (error) {
-    console.error(`[REPO] Error finding open bets:`, error);
+    console.error(`[REPO] Error finding pending bets:`, error);
     return [];
   }
 };
 
-// ============ FIND ALL OPEN BETS ============
-const findAllOpenBets = async () => {
-  console.log(`[REPO] Finding all open bets`);
+// ============ FIND ALL PENDING BETS ============
+const findAllPendingBets = async () => {
+  console.log(`[REPO] Finding all pending bets`);
   
   try {
     const bets = await Bet.findAll({
       where: { 
-        status: 'OPEN'  // ← Badilisha kutoka 'PENDING' kuwa 'OPEN'
+        status: 'PENDING'
       },
       include: [{
         model: BetSelection,
@@ -200,23 +201,23 @@ const findAllOpenBets = async () => {
       }]
     });
     
-    console.log(`[REPO] Found ${bets.length} total open bets`);
+    console.log(`[REPO] Found ${bets.length} total pending bets`);
     return bets;
   } catch (error) {
-    console.error(`[REPO] Error finding all open bets:`, error);
+    console.error(`[REPO] Error finding all pending bets:`, error);
     return [];
   }
 };
 
-// ============ FIND OPEN BETS BY USER ID ============
-const findOpenBetsByUserId = async (userId) => {
-  console.log(`[REPO] Finding open bets for user ${userId}`);
+// ============ FIND PENDING BETS BY USER ID ============
+const findPendingBetsByUserId = async (userId) => {
+  console.log(`[REPO] Finding pending bets for user ${userId}`);
   
   try {
     const bets = await Bet.findAll({
       where: { 
         user_id: userId,
-        status: 'OPEN'  // ← Badilisha kutoka 'PENDING' kuwa 'OPEN'
+        status: 'PENDING'
       },
       include: [{
         model: BetSelection,
@@ -230,10 +231,10 @@ const findOpenBetsByUserId = async (userId) => {
       order: [['createdAt', 'DESC']]
     });
     
-    console.log(`[REPO] Found ${bets.length} open bets for user ${userId}`);
+    console.log(`[REPO] Found ${bets.length} pending bets for user ${userId}`);
     return bets;
   } catch (error) {
-    console.error(`[REPO] Error finding open bets for user:`, error);
+    console.error(`[REPO] Error finding pending bets for user:`, error);
     return [];
   }
 };
@@ -301,10 +302,10 @@ module.exports = {
   updateSelectionWithTransaction,
   bulkUpdateSelections,
   
-  // Find by match - OPEN bets (ziko 'OPEN' na bado hazijasettled)
-  findOpenBetsByMatchId,        // ← Jina jipya
-  findAllOpenBets,             // ← Jina jipya
-  findOpenBetsByUserId,        // ← Jina jipya
+  // Find by match
+  findPendingBetsByMatchId,
+  findAllPendingBets,
+  findPendingBetsByUserId,
   findBetWithSelectionsAndMatches,
   
   // Counts

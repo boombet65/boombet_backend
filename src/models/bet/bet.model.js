@@ -44,14 +44,14 @@ const Bet = sequelize.define('Bet', {
     defaultValue: 0.00,
   },
   status: {
-    type: DataTypes.ENUM('PENDING', 'SETTLED'), // <-- Simplified to just PENDING or SETTLED
-    allowNull: false,
-    defaultValue: 'PENDING',
-  },
-  result: {
-    type: DataTypes.ENUM('OPEN', 'WON', 'LOST', 'CANCELLED'), // <-- New field for actual result
+    type: DataTypes.ENUM('OPEN', 'SETTLED'), // <-- Simplified to just PENDING or SETTLED
     allowNull: false,
     defaultValue: 'OPEN',
+  },
+  result: {
+    type: DataTypes.ENUM('PENDING', 'WON', 'LOST', 'CANCELLED'), // <-- New field for actual result
+    allowNull: false,
+    defaultValue: 'PENDING',
   },
   placed_via: {
     type: DataTypes.ENUM('DIRECT', 'BOOKING_CODE'),

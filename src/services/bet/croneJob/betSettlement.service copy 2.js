@@ -45,11 +45,13 @@ const evaluateSelection = (selection, match) => {
   return false;
 };
 
-// ============ CHECK ALL MATCHES FINISHED ============
+// ============ FIX: Badilisha 'Selections' kuwa 'selections' ============
 const checkAllMatchesFinished = (bet) => {
+  // Badilisha hapa - 'selections' (small s) sio 'Selections'
   const selections = bet.selections || [];
   
   for (const sel of selections) {
+    // Badilisha hapa - 'match' (small m) sio 'Match'
     const match = sel.match;
     if (!match || match.status !== 'FINISHED') {
       return false;
@@ -58,7 +60,7 @@ const checkAllMatchesFinished = (bet) => {
   return true;
 };
 
-// ============ CHECK ALL SELECTIONS WON ============
+// ============ FIX: Badilisha 'Selections' kuwa 'selections' ============
 const checkAllSelectionsWon = (bet) => {
   const selections = bet.selections || [];
   
@@ -70,7 +72,7 @@ const checkAllSelectionsWon = (bet) => {
   return true;
 };
 
-// ============ CHECK ANY SELECTION LOST ============
+// ============ FIX: Badilisha 'Selections' kuwa 'selections' ============
 const checkAnySelectionLost = (bet) => {
   const selections = bet.selections || [];
   
@@ -82,33 +84,35 @@ const checkAnySelectionLost = (bet) => {
   return false;
 };
 
-// ============ MAIN SETTLEMENT FUNCTION ============
+// ============ FIX: Main settlement function ============
 const settlePendingBets = async (finishedMatchId) => {
   console.log(`[SETTLEMENT] 🚀 Starting settlement for match ${finishedMatchId}`);
   
   try {
-    // ============ CALL REPOSITORY METHOD ============
-    const openBets = await betRepository.findOpenBetsByMatchId(finishedMatchId);
+    // Tafuta mikeka yote PENDING yenye hii mechi
+    const pendingBets = await betRepository.findPendingBetsByMatchId(finishedMatchId);
     
-    if (!openBets || openBets.length === 0) {
-      console.log(`[SETTLEMENT] ℹ️ No open bets found for match ${finishedMatchId}`);
+    if (!pendingBets || pendingBets.length === 0) {
+      console.log(`[SETTLEMENT] ℹ️ No pending bets found for match ${finishedMatchId}`);
       return;
     }
 
-    console.log(`[SETTLEMENT] 📋 Found ${openBets.length} open bets`);
+    console.log(`[SETTLEMENT] 📋 Found ${pendingBets.length} pending bets`);
 
-    for (const bet of openBets) {
+    for (const bet of pendingBets) {
       console.log(`[SETTLEMENT] 🔄 Processing bet ${bet.ticket_code}`);
       
       const transaction = await sequelize.transaction();
       
       try {
+        // ============ FIX: Use 'selections' (small s) ============
         const selections = bet.selections || [];
         console.log(`[SETTLEMENT] 📊 Bet has ${selections.length} selections`);
 
         // Evaluate all selections for this match
         for (const sel of selections) {
           if (sel.status === 'PENDING') {
+            // ============ FIX: Use 'match' (small m) ============
             const match = sel.match;
             
             if (!match) {
@@ -118,11 +122,14 @@ const settlePendingBets = async (finishedMatchId) => {
             
             console.log(`[SETTLEMENT] 🔍 Selection: ${sel.market_key} - ${sel.outcome_key} | Match: ${match.status}`);
             
+            // Only evaluate if match is FINISHED
             if (match.status === 'FINISHED') {
               const isWon = evaluateSelection(sel, match);
               const newStatus = isWon ? 'WON' : 'LOST';
               
               console.log(`[SETTLEMENT] ${isWon ? '✅' : '❌'} Selection -> ${newStatus}`);
+              
+              // ============ FIX: Use update() instead of save() ============
               await sel.update({ status: newStatus }, { transaction });
             }
           }
@@ -133,29 +140,31 @@ const settlePendingBets = async (finishedMatchId) => {
         console.log(`[SETTLEMENT] 📊 All matches finished: ${allMatchesFinished}`);
         
         if (allMatchesFinished) {
+          // All matches are finished, now determine final result
           const hasLostSelection = checkAnySelectionLost(bet);
           const allSelectionsWon = checkAllSelectionsWon(bet);
           
           console.log(`[SETTLEMENT] 📊 Has lost: ${hasLostSelection}, All won: ${allSelectionsWon}`);
           
-          // ============ UPDATE BET - MODEL FIELDS ============
-          // status: 'OPEN' -> 'SETTLED'
-          // result: 'PENDING' -> 'WON' au 'LOST'
-          
+          // Update Bet Status and Result
           if (hasLostSelection) {
             console.log(`[SETTLEMENT] ❌ Bet ${bet.ticket_code} LOST`);
+            // ============ FIX: Use update() instead of save() ============
             await bet.update({
-              status: 'SETTLED',   // ← Kutoka 'OPEN' kwenda 'SETTLED'
-              result: 'LOST'       // ← Kutoka 'PENDING' kwenda 'LOST'
+              status: 'SETTLED',
+              result: 'LOST'
             }, { transaction });
             
           } else if (allSelectionsWon) {
             console.log(`[SETTLEMENT] ✅ Bet ${bet.ticket_code} WON`);
+            
+            // ============ FIX: Use update() instead of save() ============
             await bet.update({
-              status: 'SETTLED',   // ← Kutoka 'OPEN' kwenda 'SETTLED'
-              result: 'WON'        // ← Kutoka 'PENDING' kwenda 'WON'
+              status: 'SETTLED',
+              result: 'WON'
             }, { transaction });
 
+            // Lipa hela ya ushindi kwenye Wallet ya User!
             const payoutAmount = parseFloat(bet.payout);
             if (payoutAmount > 0) {
               console.log(`[SETTLEMENT] 💰 Paying ${payoutAmount} to user ${bet.user_id}`);
@@ -188,7 +197,7 @@ const settlePendingBets = async (finishedMatchId) => {
   }
 };
 
-// ============ FORCE SETTLE SPECIFIC BET ============
+// ============ FIX: settleSpecificBet pia ============
 const settleSpecificBet = async (betId) => {
   console.log(`[SETTLEMENT] 🔧 Force settling bet ${betId}`);
   
@@ -200,10 +209,13 @@ const settleSpecificBet = async (betId) => {
   const transaction = await sequelize.transaction();
   
   try {
+    // ============ FIX: Use 'selections' (small s) ============
     const selections = bet.selections || [];
     
+    // Evaluate all selections
     for (const sel of selections) {
       if (sel.status === 'PENDING') {
+        // ============ FIX: Use 'match' (small m) ============
         const match = sel.match;
         if (match && match.status === 'FINISHED') {
           const isWon = evaluateSelection(sel, match);
@@ -214,6 +226,7 @@ const settleSpecificBet = async (betId) => {
       }
     }
 
+    // Determine bet result
     const allMatchesFinished = checkAllMatchesFinished(bet);
     
     if (allMatchesFinished) {
