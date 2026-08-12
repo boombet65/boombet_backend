@@ -1,0 +1,36 @@
+data base design system
+
+
+
+
+
+
+
+Relationships:
+text
+BookingCode (1) ─────< (1) Selection
+      │                       │
+      │                       │ (selections zote kama JSON)
+      │                       │
+      └─────< (1) Bet ────────┘
+              │
+              ├── bookingCodeId
+              └── selectionId (selection ya kwanza)
+Data Flow:
+text
+User anachagua selections 4:
+├── Selection 1: Man Utd vs Arsenal → Home (1.85)
+├── Selection 2: Juventus vs Chelsea → Draw (3.20)
+├── Selection 3: PSG vs Monaco → Away (2.10)
+└── Selection 4: Bayern vs Dortmund → Home (1.95)
+
+Booking Code 1:
+└── Selection Row 1:
+    └── selections: [sel_1, sel_2, sel_3, sel_4] (JSON array)
+
+Bet 1:
+├── userId: user_123
+├── bookingCodeId: book_1
+├── selectionId: sel_1 (selection ya kwanza)
+├── stake: 1000
+└── totalOdds: 24.23
