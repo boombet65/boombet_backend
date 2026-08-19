@@ -17,7 +17,7 @@ jobs:
       - name: Deploy via Rsync
         uses: burnett01/rsync-deployments@5.2
         with:
-          switches: -avzr --delete --exclude='.env'
+          switches: -avzr --delete --exclude='.env' --exclude='node_modules'
           path: ./
           remote_path: /var/www/boombet_backend/
           remote_host: ${{ secrets.SERVER_HOST }}
@@ -56,32 +56,22 @@ jobs:
             cd /var/www/boombet_backend
 
             echo "📦 Installing dependencies..."
-            npm install --production
+            npm install --omit=dev
 
-            echo "🚀 Running npm start..."
-            # Angalia kama app inaendeshwa na PM2
-            if pm2 list | grep -q boombet_backend
-            then
-              echo "🔄 Restarting app via PM2..."
-              pm2 restart boombet_backend
+            echo "🚀 Managing app with PM2..."
+            
+            # Angalia kama app ipo kwenye PM2 list
+            if pm2 list | grep -q boombet_backend; then
+              echo "🔄 Reloading app via PM2..."
+              pm2 reload boombet_backend
             else
-              echo "▶️ Starting app via npm start..."
-              # Hapa tunatumia npm start kuanzisha app
-              # Kumbuka: Hii itaenda background peke yake
-              npm start &
-              
-              # Tunaongeza muda kidogo kuruhusu app kuanza
-              sleep 5
-              
-              # Kisha tumiangalie kwa PM2
-              echo "🔄 Registering with PM2..."
-              pm2 start npm --name "boombet_backend" -- start
+              echo "▶️ Starting app via PM2..."
+              pm2 start server.js --name "boombet_backend"
             fi
             
             # Save PM2 configuration
             pm2 save
-            pm2 startup systemd -u $USER --hp /home/$USER
 
-            echo "✅ Deployment complete! App inaendeshwa kwenye port 3000 (default)"
-            echo "📊 Angalia status: pm2 status"
-            echo "📜 Angalia logs: pm2 logs boombet_backend"
+            echo "✅ Deployment complete!"
+            echo "📊 Check status with: pm2 status"
+            echo "📜 Check logs with: pm2 logs boombet_backend"
